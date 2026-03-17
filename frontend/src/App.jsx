@@ -4,7 +4,7 @@ import Login from "./login/Login";
 import Dashboard from "./dashboard/Dashboard";
 import DashboardHome from "./dashboard/DashboardHome";
 import ProtectedRoute from "./protectedRoute/ProtectedRoute";
-import Info from "./components/Info/info";
+import Info from "./components/info/info";
 import AddStudent from "./components/addStudent/AddStudent";
 import Message from "./components/message/Message";
 import AddBook from "./components/addBook/AddBook";

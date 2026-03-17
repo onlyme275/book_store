@@ -21,14 +21,26 @@ def login_view(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
+    if not email or not password:
+        return Response({"error": "Email and password are required"}, status=400)
+
     user = authenticate(username=email, password=password)
+    
     if user:
         token, _ = Token.objects.get_or_create(user=user)
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+        }
+        
+        # If user is a student, include student details from student_profile
+        if user.role == "Student" and hasattr(user, 'student_profile'):
+            user_data["firstname"] = user.student_profile.firstname
+            user_data["lastname"] = user.student_profile.lastname
+
         return Response({
             "token": token.key,
-            "user": {
-                "email": user.email,
-                "role": user.role
-            }
+            "user": user_data
         })
     return Response({"error": "Invalid credentials"}, status=400)

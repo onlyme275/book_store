@@ -31,7 +31,7 @@ const DashboardHome = () => {
     return (
         <div className="space-y-8">
             {/* Welcome banner */}
-            <div className="bg-gradient-to-r from-primary-700 to-primary-500 rounded-2xl p-8 text-white shadow-lg">
+            <div className="bg-gradient-to-r from-primary-700 to-primary-500 rounded-2xl p-8 text-black shadow-lg">
                 <p className="text-primary-200 text-sm font-medium mb-1">Welcome back 👋</p>
                 <h2 className="text-3xl font-bold">{user?.email}</h2>
                 <p className="mt-2 text-primary-100 text-sm">

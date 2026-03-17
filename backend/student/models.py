@@ -13,8 +13,8 @@ class Student(models.Model):
     fathername = models.CharField(max_length=100)
     mothename = models.CharField(max_length=100)
     address = models.TextField()
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # will be hashed
+    email = models.EmailField(unique=True, null=True, blank=True)
+    password = models.CharField(max_length=128, null=True, blank=True)  # will be stored as hash (optional) or plain text as per user request
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
