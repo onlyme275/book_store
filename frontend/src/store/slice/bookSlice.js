@@ -4,16 +4,31 @@ import axios from "axios";
 const API_URL = "http://127.0.0.1:8000/api/books/";
 
 // Fetch all books
-export const fetchBooks = createAsyncThunk("books/fetchBooks", async (_, thunkAPI) => {
-  const token = localStorage.getItem("token");
-  const config = { headers: { Authorization: `Token ${token}` } };
-  try {
-    const res = await axios.get(API_URL, config);
-    return res.data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response.data);
+export const fetchBooks = createAsyncThunk(
+  "books/fetchBooks",
+  async (_, thunkAPI) => {
+    const token = localStorage.getItem("token");
+    const config = { headers: { Authorization: `Token ${token}` } };
+
+    try {
+      const res = await axios.get(API_URL, config);
+
+      // 🔥 Fix image URL here
+      const booksWithFullUrl = res.data.map((book) => ({
+        ...book,
+        photo: book.photo
+          ? book.photo.startsWith("http")
+            ? book.photo
+            : `http://127.0.0.1:8000${book.photo}`
+          : null,
+      }));
+
+      return booksWithFullUrl;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response.data);
+    }
   }
-});
+);
 
 // Add book
 export const addBook = createAsyncThunk("books/addBook", async (bookData, thunkAPI) => {

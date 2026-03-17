@@ -3,65 +3,34 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/slice/authSlice";
-
-const icons = {
-  overview: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="2" y="2" width="5" height="5" rx="1" fill="currentColor" />
-      <rect x="9" y="2" width="5" height="5" rx="1" fill="currentColor" opacity="0.5" />
-      <rect x="2" y="9" width="5" height="5" rx="1" fill="currentColor" opacity="0.5" />
-      <rect x="9" y="9" width="5" height="5" rx="1" fill="currentColor" opacity="0.5" />
-    </svg>
-  ),
-  profile: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  ),
-  students: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="6" cy="9" r="3.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M10 5.5h4M12 3.5v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  ),
-  messages: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M2 3.5h12M2 8h8M2 12.5h6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  ),
-  books: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="3" y="2" width="7" height="12" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M10 4h2a1 1 0 011 1v8a1 1 0 01-1 1h-2" stroke="currentColor" strokeWidth="1.3" />
-    </svg>
-  ),
-  logout: (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M5 2H2.5A1.5 1.5 0 001 3.5v7A1.5 1.5 0 002.5 12H5M9 10l3-3-3-3M13 7H5"
-        stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-};
+import {
+  LayoutDashboard,
+  User,
+  UserPlus,
+  BookPlus,
+  MessageSquare,
+  BookOpen,
+  LogOut,
+} from "lucide-react";
 
 const adminLinks = [
-  { name: "Overview", path: "/dashboard", icon: icons.overview },
-  { name: "Profile", path: "/dashboard/profile", icon: icons.profile },
-  { name: "Add Student", path: "/dashboard/students", icon: icons.students },
-  { name: "Messages", path: "/dashboard/messages", icon: icons.messages },
+  { name: "Overview",    path: "/dashboard",          icon: LayoutDashboard },
+  { name: "Profile",     path: "/dashboard/profile",  icon: User            },
+  { name: "Add Student", path: "/dashboard/students", icon: UserPlus        },
+  { name: "Add Book",    path: "/dashboard/books",    icon: BookPlus        },
+  { name: "Messages",    path: "/dashboard/messages", icon: MessageSquare   },
 ];
 
 const studentLinks = [
-  { name: "Overview", path: "/dashboard", icon: icons.overview },
-  { name: "Profile", path: "/dashboard/profile", icon: icons.profile },
-  { name: "Add Book", path: "/dashboard/books", icon: icons.books },
-  { name: "View Books", path: "/dashboard/view", icon: icons.books },
+  { name: "Overview",    path: "/dashboard",        icon: LayoutDashboard },
+  { name: "Profile",     path: "/dashboard/profile", icon: User           },
+  { name: "View Books",  path: "/dashboard/views",   icon: BookOpen       },
 ];
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const dispatch  = useDispatch();
+  const navigate  = useNavigate();
 
   const links = user?.role === "Admin" ? adminLinks : studentLinks;
 
@@ -80,43 +49,45 @@ const Sidebar = () => {
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-6 py-5 border-b border-gray-100">
         <div className="w-7 h-7 bg-gray-900 rounded-md flex items-center justify-center flex-shrink-0">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <rect x="2" y="2" width="5" height="7" rx="1" fill="white" />
-            <rect x="9" y="7" width="5" height="7" rx="1" fill="white" />
-            <rect x="2" y="11" width="5" height="3" rx="1" fill="white" opacity="0.5" />
-            <rect x="9" y="2" width="5" height="3" rx="1" fill="white" opacity="0.5" />
-          </svg>
+          <BookOpen size={14} color="white" />
         </div>
-        <span className="text-3xl font-bold tracking-tighter  text-gray-900">BookStore</span>
+        <span className="text-sm font-semibold tracking-tight text-gray-900">
+          BookStore
+        </span>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 pt-4">
-        <p className="text-[20px] font-semibold tracking-widest text-gray-700 uppercase px-2 mb-1.5">
+        <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-2 mb-1.5">
           Menu
         </p>
-        {links.map((link) => (
-          <NavLink
-            key={link.path}
-            to={link.path}
-            end={link.path === "/dashboard"}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${isActive
-                ? "bg-gray-900 text-white font-medium"
-                : "text-gray-800 text-5xl font-medium hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <span className={isActive ? "text-white" : "text-gray-400"}>
-                  {link.icon}
-                </span>
-                {link.name}
-              </>
-            )}
-          </NavLink>
-        ))}
+        {links.map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.path}
+              to={link.path}
+              end={link.path === "/dashboard"}
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${
+                  isActive
+                    ? "bg-gray-900 text-white font-medium"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    size={15}
+                    className={isActive ? "text-white" : "text-gray-400"}
+                  />
+                  {link.name}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* User + Logout */}
@@ -139,7 +110,7 @@ const Sidebar = () => {
           onClick={handleLogout}
           className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-sm text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150"
         >
-          {icons.logout}
+          <LogOut size={14} />
           Sign out
         </button>
       </div>
