@@ -25,6 +25,25 @@ export const fetchBooks = createAsyncThunk(
 
       return booksWithFullUrl;
     } catch (err) {
+      console.log("ERROR:", err.response.data);
+      return thunkAPI.rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const buyBook = createAsyncThunk(
+  "books/buyBook",
+  async (id, thunkAPI) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${API_URL}${id}/buy/`,
+        {},
+        { headers: { Authorization: `Token ${token}` } }
+      );
+      return id;
+    } catch (err) {
+      console.log("ERROR:", err.response.data);
       return thunkAPI.rejectWithValue(err.response.data);
     }
   }
@@ -38,6 +57,7 @@ export const addBook = createAsyncThunk("books/addBook", async (bookData, thunkA
     const res = await axios.post(API_URL, bookData, config);
     return res.data;
   } catch (err) {
+    console.log("ERROR:", err.response.data);
     return thunkAPI.rejectWithValue(err.response.data);
   }
 });
@@ -50,6 +70,7 @@ export const updateBook = createAsyncThunk("books/updateBook", async ({ id, book
     const res = await axios.put(`${API_URL}${id}/`, bookData, config);
     return res.data;
   } catch (err) {
+    console.log("ERROR:", err.response.data);
     return thunkAPI.rejectWithValue(err.response.data);
   }
 });
@@ -62,6 +83,7 @@ export const deleteBook = createAsyncThunk("books/deleteBook", async (id, thunkA
     await axios.delete(`${API_URL}${id}/`, config);
     return id;
   } catch (err) {
+    console.log("ERROR:", err.response.data);
     return thunkAPI.rejectWithValue(err.response.data);
   }
 });
@@ -88,7 +110,14 @@ const bookSlice = createSlice({
       })
       .addCase(deleteBook.fulfilled, (state, action) => {
         state.books = state.books.filter(b => b.id !== action.payload);
-      });
+      })
+      .addCase(buyBook.fulfilled, (state, action) => {
+        state.books = state.books.map((book) =>
+        book.id === action.payload
+        ? { ...book, is_sold: true }
+        : book
+      );
+    })
   },
 });
 

@@ -1,19 +1,29 @@
 from rest_framework import viewsets, permissions
 from .models import Book
 from .serializers import BookSerializer
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all().order_by('-created_at')
+    queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    # Set seller automatically for new books
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user)
 
-    # Optional: Only seller can update or delete
-    def get_permissions(self):
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            self.permission_classes = [permissions.IsAuthenticated]
-        return super().get_permissions()
-    
+    @action(detail=True, methods=['post'])
+    def buy(self, request, pk=None):
+        book = self.get_object()
+
+        if book.buyer:
+            return Response({"detail": "Book already sold"}, status=status.HTTP_400_BAD_REQUEST)
+
+        book.buyer = request.user
+        book.is_sold = True
+        book.save()
+
+        return Response({"detail": f"You bought {book.title} successfully!"})

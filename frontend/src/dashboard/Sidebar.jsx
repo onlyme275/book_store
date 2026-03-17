@@ -14,23 +14,24 @@ import {
 } from "lucide-react";
 
 const adminLinks = [
-  { name: "Overview",    path: "/dashboard",          icon: LayoutDashboard },
-  { name: "Profile",     path: "/dashboard/profile",  icon: User            },
-  { name: "Add Student", path: "/dashboard/students", icon: UserPlus        },
-  { name: "Add Book",    path: "/dashboard/books",    icon: BookPlus        },
-  { name: "Messages",    path: "/dashboard/messages", icon: MessageSquare   },
+  { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Profile", path: "/dashboard/profile", icon: User },
+  { name: "Add Student", path: "/dashboard/students", icon: UserPlus },
+  { name: "Add Book", path: "/dashboard/books", icon: BookPlus },
+  { name: "Customer", path: "/dashboard/customer", icon: User },
+  { name: "Messages", path: "/dashboard/messages", icon: MessageSquare },
 ];
 
 const studentLinks = [
-  { name: "Overview",    path: "/dashboard",        icon: LayoutDashboard },
-  { name: "Profile",     path: "/dashboard/profile", icon: User           },
-  { name: "View Books",  path: "/dashboard/views",   icon: BookOpen       },
+  { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Profile", path: "/dashboard/profile", icon: User },
+  { name: "View Books", path: "/dashboard/views", icon: BookOpen },
 ];
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const links = user?.role === "Admin" ? adminLinks : studentLinks;
 
@@ -69,10 +70,9 @@ const Sidebar = () => {
               to={link.path}
               end={link.path === "/dashboard"}
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${
-                  isActive
-                    ? "bg-gray-900 text-white font-medium"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${isActive
+                  ? "bg-gray-900 text-white font-medium"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                 }`
               }
             >

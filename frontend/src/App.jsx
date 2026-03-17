@@ -9,6 +9,7 @@ import AddStudent from "./components/addStudent/AddStudent";
 import Message from "./components/message/Message";
 import AddBook from "./components/addBook/AddBook";
 import ViewBooks from "./components/viewBooks/ViewBooks";
+import Customer from "./components/customer/Customer";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="messages" element={<Message />} />
           <Route path="books" element={<AddBook />} />
           <Route path="views" element={<ViewBooks />}/>
+          <Route path="customer" element={<Customer/>}/>
         </Route>
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
