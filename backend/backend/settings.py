@@ -21,7 +21,8 @@ INSTALLED_APPS = [
 
     'users',
     'student',
-    'books'
+    'books',
+    'review',
 ]
 
 MIDDLEWARE = [

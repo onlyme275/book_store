@@ -20,12 +20,15 @@ const adminLinks = [
   { name: "Add Book", path: "/dashboard/books", icon: BookPlus },
   { name: "Customer", path: "/dashboard/customer", icon: User },
   { name: "Messages", path: "/dashboard/messages", icon: MessageSquare },
+  { name: "Review", path: "/dashboard/review", icon: MessageSquare },
 ];
 
 const studentLinks = [
   { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
   { name: "Profile", path: "/dashboard/profile", icon: User },
   { name: "View Books", path: "/dashboard/views", icon: BookOpen },
+  { name: "Review", path: "/dashboard/review", icon: MessageSquare },
+  { name: "Messages", path: "/dashboard/messages", icon: MessageSquare },
 ];
 
 const Sidebar = () => {
