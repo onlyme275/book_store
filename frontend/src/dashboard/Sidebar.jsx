@@ -9,15 +9,13 @@ const Sidebar = () => {
   // Define links based on role
   const links = user?.role === "Admin"
     ? [
-        { name: "Info", path: "/info" },
+        { name: "Profile", path: "/info" },
         { name: "Add Student", path: "/students" },
         { name: "Messages", path: "/messages" },
-        { name: "Dashboard", path: "/dashboard" },
       ]
     : [
-        { name: "Add Book", path: "/addbook" },
-        { name: "Profile", path: "/my-profile" },
-        { name: "Dashboard", path: "/dashboard" },
+        { name: "Profile", path: "/Info" },
+        { name: "AddBook", path: "/AddBook" },
       ];
 
   return (
