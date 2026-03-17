@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'users',
-    'student'
+    'student',
+    'books'
 ]
 
 MIDDLEWARE = [

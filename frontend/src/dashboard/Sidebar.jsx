@@ -46,21 +46,22 @@ const icons = {
 
 const adminLinks = [
   { name: "Overview", path: "/dashboard", icon: icons.overview },
-  { name: "Profile",  path: "/dashboard/profile",  icon: icons.profile  },
+  { name: "Profile", path: "/dashboard/profile", icon: icons.profile },
   { name: "Add Student", path: "/dashboard/students", icon: icons.students },
   { name: "Messages", path: "/dashboard/messages", icon: icons.messages },
 ];
 
 const studentLinks = [
   { name: "Overview", path: "/dashboard", icon: icons.overview },
-  { name: "Profile",  path: "/dashboard/profile", icon: icons.profile },
-  { name: "Add Book", path: "/dashboard/books",   icon: icons.books   },
+  { name: "Profile", path: "/dashboard/profile", icon: icons.profile },
+  { name: "Add Book", path: "/dashboard/books", icon: icons.books },
+  { name: "View Books", path: "/dashboard/view", icon: icons.books },
 ];
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
-  const dispatch   = useDispatch();
-  const navigate   = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const links = user?.role === "Admin" ? adminLinks : studentLinks;
 
@@ -100,10 +101,9 @@ const Sidebar = () => {
             to={link.path}
             end={link.path === "/dashboard"}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${
-                isActive
-                  ? "bg-gray-900 text-white font-medium"
-                  : "text-gray-800 text-5xl font-medium hover:bg-gray-50 hover:text-gray-900"
+              `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm mb-0.5 transition-colors duration-150 ${isActive
+                ? "bg-gray-900 text-white font-medium"
+                : "text-gray-800 text-5xl font-medium hover:bg-gray-50 hover:text-gray-900"
               }`
             }
           >

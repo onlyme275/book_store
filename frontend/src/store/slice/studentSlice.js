@@ -11,11 +11,18 @@ const config = {
 };
 
 // Fetch all students
+// Fetch all students
 export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
-  async () => {
-    const res = await axios.get(API_URL, config);
-    return res.data;
+  async (_, thunkAPI) => {
+    const token = localStorage.getItem("token");
+    const config = { headers: { Authorization: `Token ${token}` } };
+    try {
+      const res = await axios.get(API_URL, config);
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response.data);
+    }
   }
 );
 

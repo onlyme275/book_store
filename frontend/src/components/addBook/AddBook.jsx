@@ -1,59 +1,65 @@
-// src/components/addBook/AddBook.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBooks, addBook, updateBook, deleteBook } from "../../store/slice/bookSlice";
 
-function AddBook() {
-  const [form, setForm] = useState({ title: "", author: "", price: "", isbn: "" });
+const AddBook = () => {
+  const dispatch = useDispatch();
+  const { books, loading } = useSelector((state) => state.books);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const [form, setForm] = useState({ title: "", author: "", price: "", photo: null });
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => { dispatch(fetchBooks()); }, [dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: wire up to backend API
-    alert(`Book "${form.title}" submitted!`);
-    setForm({ title: "", author: "", price: "", isbn: "" });
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("author", form.author);
+    formData.append("price", form.price);
+    if (form.photo) formData.append("photo", form.photo);
+
+    if (editingId) {
+      dispatch(updateBook({ id: editingId, bookData: formData }));
+    } else {
+      dispatch(addBook(formData));
+    }
+    setForm({ title: "", author: "", price: "", photo: null });
+    setEditingId(null);
   };
 
+  const handleEdit = (book) => {
+    setForm({ title: book.title, author: book.author, price: book.price, photo: null });
+    setEditingId(book.id);
+  };
+
+  const handleDelete = (id) => { dispatch(deleteBook(id)); };
+
   return (
-    <div className="max-w-xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Add Book</h2>
-        <p className="text-slate-500 text-sm mt-1">List a new book in the bookstore</p>
-      </div>
+    <div className="p-6">
+      <h2 className="text-xl mb-4">{editingId ? "Edit Book" : "Add Book"}</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-md">
+        <input type="text" placeholder="Title" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
+        <input type="text" placeholder="Author" value={form.author} onChange={e => setForm({...form, author: e.target.value})} required />
+        <input type="number" placeholder="Price" value={form.price} onChange={e => setForm({...form, price: e.target.value})} required />
+        <input type="file" onChange={e => setForm({...form, photo: e.target.files[0]})} />
+        <button className="bg-orange-500 text-white px-4 py-2 rounded">{editingId ? "Update" : "Add"}</button>
+      </form>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {[
-            { id: "title", label: "Book Title", type: "text", placeholder: "The Great Gatsby" },
-            { id: "author", label: "Author", type: "text", placeholder: "F. Scott Fitzgerald" },
-            { id: "price", label: "Price ($)", type: "number", placeholder: "19.99" },
-            { id: "isbn", label: "ISBN", type: "text", placeholder: "978-0-00-000000-0" },
-          ].map((field) => (
-            <div key={field.id}>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                {field.label}
-              </label>
-              <input
-                name={field.id}
-                type={field.type}
-                placeholder={field.placeholder}
-                value={form[field.id]}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-              />
+      <h3 className="text-lg mt-6">Books List</h3>
+      <ul className="mt-3 space-y-2">
+        {loading ? <p>Loading...</p> : books.map(book => (
+          <li key={book.id} className="flex justify-between items-center p-2 border rounded">
+            <span>{book.title} by {book.author} (${book.price})</span>
+            <div className="flex gap-2">
+              <button onClick={() => handleEdit(book)} className="bg-yellow-400 px-2 rounded">Edit</button>
+              <button onClick={() => handleDelete(book.id)} className="bg-red-500 px-2 rounded text-white">Delete</button>
             </div>
-          ))}
-
-          <button
-            type="submit"
-            className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors shadow-md mt-2"
-          >
-            📚 Add Book
-          </button>
-        </form>
-      </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
 
 export default AddBook;
