@@ -3,57 +3,130 @@ import { useNavigate } from "react-router-dom";
 import EntryScene from "../scenes/EntryScene";
 import WorldScene from "../scenes/WorldScene";
 
-const PHASE = { ENTRY: "entry", WORLD: "world", TRANSITION: "transition" };
+const PHASE = {
+  ENTRY: "entry",
+  WORLD: "world",
+  TRANSITION: "transition",
+};
 
 export default function Game() {
-    const [phase, setPhase] = useState(PHASE.ENTRY);
-    const navigate = useNavigate();
-    const entered = useRef(false);
+  const [phase, setPhase] = useState(PHASE.ENTRY);
+  const [transitionText, setTransitionText] = useState("Entering...");
+  const navigate = useNavigate();
+  const entered = useRef(false);
 
-    const handleEnterWorld = useCallback(() => {
-        setPhase(PHASE.TRANSITION);
-        setTimeout(() => setPhase(PHASE.WORLD), 900);
-    }, []);
+  // 🚪 Door → World
+  const handleEnterWorld = useCallback(() => {
+    setTransitionText("Entering world...");
+    setPhase(PHASE.TRANSITION);
 
-    const handleEnterHouse = useCallback(() => {
-        if (entered.current) return;
-        entered.current = true;
-        setPhase(PHASE.TRANSITION);
-        setTimeout(() => navigate("/login"), 900);
-    }, [navigate]);
+    setTimeout(() => {
+      setPhase(PHASE.WORLD);
+    }, 1000);
+  }, []);
 
-    return (
-        <div style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
-            {/* Scene layers */}
-            {phase === PHASE.ENTRY && <EntryScene onEnter={handleEnterWorld} />}
-            {phase === PHASE.WORLD && <WorldScene onEnterHouse={handleEnterHouse} />}
+  // 🏠 House → Login
+  const handleEnterHouse = useCallback(() => {
+    if (entered.current) return;
 
-            {/* Transition overlay */}
-            {phase === PHASE.TRANSITION && (
-                <div style={{
-                    position: "fixed", inset: 0,
-                    background: "radial-gradient(circle, #1e1b4b, #000)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    zIndex: 9999,
-                    animation: "fadeInOut 0.9s ease-in-out",
-                }}>
-                    <div style={{ textAlign: "center" }}>
-                        <div style={{
-                            width: 60, height: 60, border: "3px solid #7c3aed",
-                            borderTop: "3px solid transparent", borderRadius: "50%",
-                            animation: "spin 0.8s linear infinite",
-                            margin: "0 auto 16px",
-                        }} />
-                        <p style={{ color: "#a78bfa", fontFamily: "sans-serif", fontSize: "1rem", letterSpacing: "0.1em" }}>
-                            Loading world...
-                        </p>
-                    </div>
-                    <style>{`
-            @keyframes spin { to { transform: rotate(360deg); } }
-            @keyframes fadeInOut { 0%{opacity:0} 30%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    entered.current = true;
+    setTransitionText("Entering house...");
+    setPhase(PHASE.TRANSITION);
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
+  }, [navigate]);
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        background: "#000",
+      }}
+    >
+      {/* 🎮 Scene Layer */}
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          transform:
+            phase === PHASE.TRANSITION ? "scale(1.05)" : "scale(1)",
+          transition: "transform 1s ease",
+          filter:
+            phase === PHASE.TRANSITION ? "blur(6px)" : "blur(0px)",
+        }}
+      >
+        {phase === PHASE.ENTRY && (
+          <EntryScene onEnter={handleEnterWorld} />
+        )}
+
+        {phase === PHASE.WORLD && (
+          <WorldScene onEnterHouse={handleEnterHouse} />
+        )}
+      </div>
+
+      {/* 🌌 Transition Overlay */}
+      {phase === PHASE.TRANSITION && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background:
+              "radial-gradient(circle at center, #1e1b4b 0%, #000 80%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            animation: "fadeInOut 1s ease-in-out",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            {/* Loader */}
+            <div
+              style={{
+                width: 70,
+                height: 70,
+                border: "4px solid #7c3aed",
+                borderTop: "4px solid transparent",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+                margin: "0 auto 20px",
+                boxShadow: "0 0 20px #7c3aed88",
+              }}
+            />
+
+            {/* Text */}
+            <p
+              style={{
+                color: "#c4b5fd",
+                fontFamily: "sans-serif",
+                fontSize: "1.1rem",
+                letterSpacing: "0.1em",
+              }}
+            >
+              {transitionText}
+            </p>
+          </div>
+
+          {/* Animations */}
+          <style>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+
+            @keyframes fadeInOut {
+              0% { opacity: 0; }
+              30% { opacity: 1; }
+              80% { opacity: 1; }
+              100% { opacity: 0; }
+            }
           `}</style>
-                </div>
-            )}
         </div>
-    );
+      )}
+    </div>
+  );
 }

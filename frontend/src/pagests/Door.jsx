@@ -1,67 +1,102 @@
-import { useRef } from "react";
+import React, { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { Float, MeshDistortMaterial, Sparkles, Stars, Trail } from "@react-three/drei";
 
-export default function Door({ position = [0, 0, 0] }) {
-    const glowRef = useRef();
-    const portalRef = useRef();
-    const t = useRef(0);
+export default function Door({ position = [0, 0, 0], scale = 1, isOpen = false }) {
+  const leftWing = useRef();
+  const rightWing = useRef();
+  const portalRef = useRef();
+  const energyRef = useRef();
 
-    useFrame((_, delta) => {
-        t.current += delta;
-        // Pulse glow intensity
-        if (glowRef.current) {
-            glowRef.current.intensity = 1.5 + Math.sin(t.current * 2) * 0.8;
-        }
-        // Animate portal colour
-        if (portalRef.current) {
-            const hue = (t.current * 0.05) % 1;
-            portalRef.current.color.setHSL(hue, 0.9, 0.5);
-        }
-    });
+  const openAngle = useRef(0);
 
-    const [x, y, z] = position;
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
 
-    return (
-        <group position={[x, y, z]}>
-            {/* Door Frame */}
-            {/* Left pillar */}
-            <mesh position={[-1.2, 2, 0]}>
-                <boxGeometry args={[0.3, 4, 0.3]} />
-                <meshStandardMaterial color="#c8a96e" metalness={0.6} roughness={0.3} />
-            </mesh>
-            {/* Right pillar */}
-            <mesh position={[1.2, 2, 0]}>
-                <boxGeometry args={[0.3, 4, 0.3]} />
-                <meshStandardMaterial color="#c8a96e" metalness={0.6} roughness={0.3} />
-            </mesh>
-            {/* Top bar */}
-            <mesh position={[0, 4.1, 0]}>
-                <boxGeometry args={[2.7, 0.3, 0.3]} />
-                <meshStandardMaterial color="#c8a96e" metalness={0.6} roughness={0.3} />
-            </mesh>
-            {/* Arch detail */}
-            <mesh position={[0, 4.4, 0]}>
-                <torusGeometry args={[1.1, 0.15, 12, 24, Math.PI]} />
-                <meshStandardMaterial color="#e2c07a" metalness={0.7} roughness={0.2} />
-            </mesh>
-
-            {/* Portal inner glow */}
-            <mesh position={[0, 2, 0.01]}>
-                <planeGeometry args={[2, 3.8]} />
-                <meshBasicMaterial ref={portalRef} color="#6a00ff" transparent opacity={0.7} side={THREE.DoubleSide} />
-            </mesh>
-
-            {/* Particle rings */}
-            {[0, 0.6, 1.2].map((offset, i) => (
-                <mesh key={i} position={[0, 2, -0.05 - i * 0.1]} rotation={[0, 0, t.current * 0.3 + offset]}>
-                    <torusGeometry args={[0.8 - i * 0.1, 0.02, 8, 32]} />
-                    <meshBasicMaterial color={["#a855f7", "#818cf8", "#38bdf8"][i]} />
-                </mesh>
-            ))}
-
-            {/* Point light for glow */}
-            <pointLight ref={glowRef} color="#7c3aed" intensity={2} distance={8} decay={2} />
-        </group>
+    // Smooth door animation
+    openAngle.current = THREE.MathUtils.lerp(
+      openAngle.current,
+      isOpen ? 1.9 : 0,
+      delta * (isOpen ? 1.5 : 0.8)
     );
+
+    if (leftWing.current) leftWing.current.rotation.y = -openAngle.current;
+    if (rightWing.current) rightWing.current.rotation.y = openAngle.current;
+
+    // Pulse effects
+    if (portalRef.current) {
+      portalRef.current.scale.setScalar(1 + Math.sin(t * 4) * 0.05);
+      portalRef.current.material.distort = 0.3 + Math.sin(t * 2) * 0.15;
+    }
+    if (energyRef.current) {
+      energyRef.current.rotation.z = t * 0.2;
+    }
+  });
+
+  return (
+    <group position={position} scale={scale}>
+      {/* ── STUNNING ARCHWAY ── */}
+      {/* Left Column (Rounded) */}
+      <mesh position={[-2.4, 2.5, 0]}>
+        <cylinderGeometry args={[0.4, 0.5, 5, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.9} roughness={0.1} />
+      </mesh>
+      {/* Right Column (Rounded) */}
+      <mesh position={[2.4, 2.5, 0]}>
+        <cylinderGeometry args={[0.4, 0.5, 5, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.9} roughness={0.1} />
+      </mesh>
+
+      {/* Ornate Top Arch */}
+      <mesh position={[0, 5.1, 0]}>
+        <torusGeometry args={[2.4, 0.25, 12, 100, Math.PI]} />
+        <meshStandardMaterial color="#ffd700" metalness={1} roughness={0} />
+      </mesh>
+
+      {/* ── MAGICAL EFFECTS ── */}
+      <Sparkles count={80} scale={6} size={2} speed={0.4} color="#a78bfa" />
+
+      {/* ── THE DOORS ── */}
+      <group position={[-2.0, 2.5, 0]} ref={leftWing}>
+        <mesh position={[1.0, 0, 0]}>
+          <boxGeometry args={[2.0, 5, 0.15]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.7} roughness={0.3} />
+          {/* Rune lights on door */}
+          <pointLight position={[0.5, 1.5, 0.1]} color="#7c3aed" intensity={1} distance={2} />
+        </mesh>
+      </group>
+
+      <group position={[2.0, 2.5, 0]} ref={rightWing}>
+        <mesh position={[-1.0, 0, 0]}>
+          <boxGeometry args={[2.0, 5, 0.15]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.7} roughness={0.3} />
+          <pointLight position={[-0.5, 1.5, 0.1]} color="#7c3aed" intensity={1} distance={2} />
+        </mesh>
+      </group>
+
+      {/* ── PORTAL ENERGY ── */}
+      <mesh position={[0, 2.5, -0.4]} ref={energyRef}>
+        <ringGeometry args={[0, 2.5, 32]} />
+        <MeshDistortMaterial
+          ref={portalRef}
+          color="#312e81"
+          speed={4}
+          distort={0.5}
+          emissive="#7c3aed"
+          emissiveIntensity={2}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+
+      {/* Floor with reflection glow */}
+      <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[8, 4]} />
+        <meshStandardMaterial color="#050505" metalness={0.9} roughness={0.1} />
+      </mesh>
+
+      <pointLight position={[0, 3, 2]} color="#7c3aed" intensity={3} />
+    </group>
+  );
 }
