@@ -11,12 +11,16 @@ import AddBook from "./components/addBook/AddBook";
 import ViewBooks from "./components/viewBooks/ViewBooks";
 import Customer from "./components/customer/Customer";
 import ReviewApp from "./components/review/ReviewApp";
+import Game from "./game/Game";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* 3D game entry experience */}
+        <Route path="/" element={<Game />} />
+        {/* Login page (reached after entering the house in the game) */}
+        <Route path="/login" element={<Login />} />
         <Route
           path="/dashboard"
           element={
@@ -31,9 +35,9 @@ function App() {
           <Route path="students" element={<AddStudent />} />
           <Route path="messages" element={<Message />} />
           <Route path="books" element={<AddBook />} />
-          <Route path="views" element={<ViewBooks />}/>
-          <Route path="customer" element={<Customer/>}/>
-          <Route path="review" element={<ReviewApp />}/>
+          <Route path="views" element={<ViewBooks />} />
+          <Route path="customer" element={<Customer />} />
+          <Route path="review" element={<ReviewApp />} />
         </Route>
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />

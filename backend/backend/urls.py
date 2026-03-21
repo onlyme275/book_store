@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/', include('student.urls')),
     path('api/', include('books.urls')),
     path('api/', include('review.urls')),
+    path('api/', include('message.urls')),
 ]
 
 if settings.DEBUG:

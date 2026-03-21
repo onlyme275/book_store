@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'student',
     'books',
     'review',
+    'message',
 ]
 
 MIDDLEWARE = [
@@ -103,3 +104,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+INSTALLED_APPS += ['channels']
+ASGI_APPLICATION = 'backend.asgi.application'
+
+# Redis config for channel layers (real-time communication)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
+    },
+}

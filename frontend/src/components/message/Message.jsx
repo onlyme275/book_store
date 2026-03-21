@@ -1,74 +1,83 @@
-// src/components/message/Message.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addMessage } from "../../store/slice/messageSlice";
 
-const sampleMessages = [
-  { id: 1, from: "Admin", text: "Welcome to the system!", time: "10:00 AM" },
-  { id: 2, from: "System", text: "Your account has been configured.", time: "10:05 AM" },
-];
+let socket;
 
-function Message() {
-  const [messages, setMessages] = useState(sampleMessages);
+const Message = ({ user }) => {
+  const dispatch = useDispatch();
+  const { messages } = useSelector((state) => state.messages);
   const [text, setText] = useState("");
 
-  const sendMessage = (e) => {
+  useEffect(() => {
+    // Connect to WebSocket
+    socket = new WebSocket("ws://127.0.0.1:8000/ws/messages/");
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // Only show student's own messages or admin messages
+      if (
+        user.is_staff || // admin sees all
+        data.sender_id === user.id ||
+        data.sender_role === "admin"
+      ) {
+        dispatch(addMessage(data));
+      }
+    };
+
+    return () => socket.close();
+  }, [dispatch, user]);
+
+  const handleSend = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), from: "You", text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
-    ]);
+
+    const messageData = {
+      content: text,
+      sender_role: user.is_staff ? "admin" : "student",
+      sender_id: user.id,
+    };
+
+    socket.send(JSON.stringify(messageData));
     setText("");
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Messages</h2>
-        <p className="text-slate-500 text-sm mt-1">Your inbox and conversations</p>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm flex flex-col" style={{ height: "480px" }}>
-        {/* Messages list */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex flex-col max-w-xs ${msg.from === "You" ? "ml-auto items-end" : "items-start"}`}
-            >
-              <p className="text-xs text-slate-400 mb-1">
-                <span className="font-medium text-slate-600">{msg.from}</span> · {msg.time}
-              </p>
-              <div
-                className={`px-4 py-2.5 rounded-2xl text-sm ${msg.from === "You"
-                    ? "bg-primary-600 text-white rounded-br-none"
-                    : "bg-slate-100 text-slate-800 rounded-bl-none"
-                  }`}
-              >
-                {msg.text}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Input area */}
-        <form onSubmit={sendMessage} className="border-t border-slate-100 p-4 flex gap-3">
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-          />
-          <button
-            type="submit"
-            className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors text-sm"
+    <div className="p-6 max-w-xl mx-auto">
+      <h2 className="text-xl mb-4">Messages</h2>
+      <div className="border rounded p-3 mb-3 h-80 overflow-y-auto bg-gray-50">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`p-2 mb-2 rounded ${
+              msg.sender_role === "admin"
+                ? "bg-blue-100 text-blue-800 ml-auto"
+                : "bg-green-100 text-green-800"
+            }`}
           >
-            Send
-          </button>
-        </form>
+            <strong>{msg.sender_role === "admin" ? "Admin" : "You"}:</strong>{" "}
+            {msg.content}
+          </div>
+        ))}
       </div>
+
+      <form onSubmit={handleSend} className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Type your message..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="flex-1 border px-2 py-1 rounded"
+        />
+        <button
+          type="submit"
+          className="bg-orange-500 text-white px-4 py-1 rounded"
+        >
+          Send
+        </button>
+      </form>
     </div>
   );
-}
+};
 
 export default Message;
