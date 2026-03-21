@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Sky, Environment, Text, Stars, Sparkles } from "@react-three/drei";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Stupa from "../pages/Stupa";
 import House from "../pages/House";
 import Player from "../pages/Player";
@@ -51,52 +51,54 @@ export default function WorldScene({ onEnterHouse }) {
         camera={{ position: [0, 8, 15], fov: 50 }}
         style={{ background: "#a3eafb" }}
       >
-        {/* Atmospheric lighting */}
-        <Environment preset="park" />
-        <ambientLight intensity={0.6} />
-        <directionalLight
-          castShadow
-          intensity={1.8}
-          position={[30, 40, 20]}
-          shadow-mapSize={[2048, 2048]}
-        />
+        <Suspense fallback={null}>
+          {/* Atmospheric lighting */}
+          <Environment preset="park" />
+          <ambientLight intensity={0.6} />
+          <directionalLight
+            castShadow
+            intensity={1.8}
+            position={[30, 40, 20]}
+            shadow-mapSize={[2048, 2048]}
+          />
 
-        {/* Dynamic Sky */}
-        <Sky sunPosition={[100, 10, 100]} turbidity={0.1} rayleigh={0.5} />
+          {/* Dynamic Sky */}
+          <Sky sunPosition={[100, 10, 100]} turbidity={0.1} rayleigh={0.5} />
 
-        {/* Environmental Elements */}
-        <Ground />
-        <Path />
-        <Birds />
+          {/* Environmental Elements */}
+          <Ground />
+          <Path />
+          <Birds />
 
-        {/* Forest */}
-        {[
-          [-12, 0, 5], [-18, 0, -8], [15, 0, 2], [22, 0, -12],
-          [-5, 0, -18], [12, 0, -22], [0, 0, -25], [25, 0, 10],
-          [-28, 0, 0], [30, 0, -20]
-        ].map((p, i) => (
-          <Tree key={i} position={p} />
-        ))}
+          {/* Forest */}
+          {[
+            [-12, 0, 5], [-18, 0, -8], [15, 0, 2], [22, 0, -12],
+            [-5, 0, -18], [12, 0, -22], [0, 0, -25], [25, 0, 10],
+            [-28, 0, 0], [30, 0, -20]
+          ].map((p, i) => (
+            <Tree key={i} position={p} />
+          ))}
 
-        {/* Core Landmarks */}
-        <Stupa position={[0, 0, -12]} />
-        <House position={[12, 0, -10]} />
+          {/* Core Landmarks */}
+          <Stupa position={[0, 0, -12]} />
+          <House position={[12, 0, -10]} />
 
-        {/* Labels */}
-        <Text position={[12, 6.5, -10]} fontSize={0.6} color="#1abc9c" anchorX="center">
-          The Palace Vault
-        </Text>
-        <Text position={[0, 8, -12]} fontSize={0.4} color="#f1c40f" anchorX="center">
-          Spire of Peace
-        </Text>
+          {/* Labels */}
+          <Text position={[12, 6.5, -10]} fontSize={0.6} color="#1abc9c" anchorX="center">
+            The Palace Vault
+          </Text>
+          <Text position={[0, 8, -12]} fontSize={0.4} color="#f1c40f" anchorX="center">
+            Spire of Peace
+          </Text>
 
-        {/* Controllable player */}
-        <Player onEnterHouse={onEnterHouse} />
+          {/* Controllable player */}
+          <Player onEnterHouse={onEnterHouse} />
 
-        {/* Ambient VFX */}
-        <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
-        <Sparkles count={50} scale={20} size={2} speed={0.3} color="#fff" />
-        <fog attach="fog" args={["#a3eafb", 20, 70]} />
+          {/* Ambient VFX */}
+          <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
+          <Sparkles count={50} scale={20} size={2} speed={0.3} color="#fff" />
+          <fog attach="fog" args={["#a3eafb", 20, 70]} />
+        </Suspense>
       </Canvas>
 
       {/* HUD */}
