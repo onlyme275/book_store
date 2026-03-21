@@ -1,11 +1,11 @@
 import { Canvas } from "@react-three/fiber";
 import { Sky, Environment, Text, Stars, Sparkles } from "@react-three/drei";
 import { useState, useEffect } from "react";
-import Stupa from "../pagests/Stupa";
-import House from "../pagests/House";
-import Player from "../pagests/Player";
-import Tree from "../pagests/Tree";
-import Birds from "../pagests/Birds";
+import Stupa from "../pages/Stupa";
+import House from "../pages/House";
+import Player from "../pages/Player";
+import Tree from "../pages/Tree";
+import Birds from "../pages/Birds";
 import * as THREE from "three";
 
 // High-quality grass ground
@@ -83,10 +83,10 @@ export default function WorldScene({ onEnterHouse }) {
         <House position={[12, 0, -10]} />
 
         {/* Labels */}
-        <Text position={[12, 6.5, -10]} fontSize={0.6} color="#1abc9c" anchorX="center" font={undefined}>
+        <Text position={[12, 6.5, -10]} fontSize={0.6} color="#1abc9c" anchorX="center">
           The Palace Vault
         </Text>
-        <Text position={[0, 8, -12]} fontSize={0.4} color="#f1c40f" anchorX="center" font={undefined}>
+        <Text position={[0, 8, -12]} fontSize={0.4} color="#f1c40f" anchorX="center">
           Spire of Peace
         </Text>
 

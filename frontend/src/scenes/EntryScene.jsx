@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Stars, Text, Float, Sparkles, Environment } from "@react-three/drei";
 import { useEffect, useState } from "react";
-import Door from "../pagests/Door";
+import Door from "../pages/Door";
 
 export default function EntryScene({ onEnter }) {
   const [openGate, setOpenGate] = useState(false);
@@ -11,6 +11,7 @@ export default function EntryScene({ onEnter }) {
     if (pulse) return;
     setOpenGate(true);
     setPulse(true);
+    // Wait for the gate to visibly open before fading out/switching scene
     setTimeout(() => onEnter && onEnter(), 1500);
   };
 
@@ -42,7 +43,7 @@ export default function EntryScene({ onEnter }) {
         <Stars radius={100} depth={50} count={7000} factor={4} saturation={0} fade speed={1.5} />
         <Sparkles count={150} scale={20} size={2} speed={0.3} color="#a78bfa" />
 
-        {/* The Big Gate */}
+        {/* The Big Gate (Massive Opening Gate) */}
         <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
           <Door position={[0, -0.5, 0]} scale={1.4} isOpen={openGate} />
         </Float>
@@ -62,14 +63,14 @@ export default function EntryScene({ onEnter }) {
           </Text>
         </Float>
 
-        {/* Distant planet or moon for depth */}
+        {/* Distant planet for atmosphere */}
         <mesh position={[-15, 10, -30]}>
           <sphereGeometry args={[5, 32, 32]} />
           <meshStandardMaterial color="#1e1b4b" emissive="#312e81" emissiveIntensity={0.5} />
         </mesh>
       </Canvas>
 
-      {/* ── BEAUTIFUL HTML OVERLAY ── */}
+      {/* ── HTML OVERLAY ── */}
       <div
         style={{
           position: "absolute", inset: 0,
@@ -78,7 +79,6 @@ export default function EntryScene({ onEnter }) {
           pointerEvents: "none", zIndex: 10,
         }}
       >
-        {/* Dynamic Title */}
         <div style={{ transform: "translateY(-140px)" }}>
           <h1 style={{
             color: "#fff", fontFamily: "'Cinzel Decorative', cursive, serif",
@@ -97,7 +97,6 @@ export default function EntryScene({ onEnter }) {
           </p>
         </div>
 
-        {/* Interactive Button */}
         {!openGate && (
           <button
             onClick={(e) => { e.stopPropagation(); handleEnter(); }}
@@ -124,7 +123,7 @@ export default function EntryScene({ onEnter }) {
         )}
       </div>
 
-      {/* Flash transition overlay */}
+      {/* Flash overlay on transition */}
       {pulse && (
         <div style={{
           position: "fixed", inset: 0,
