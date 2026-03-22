@@ -27,8 +27,9 @@ const AddStudent = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showForm, setShowForm] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [profileFileName, setProfileFileName] = useState("");
 
   useEffect(() => {
     dispatch(fetchStudents());
@@ -36,8 +37,12 @@ const AddStudent = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (files) setForm({ ...form, [name]: files[0] });
-    else setForm({ ...form, [name]: value });
+    if (files) {
+      setForm({ ...form, [name]: files[0] });
+      setProfileFileName(files[0]?.name || "");
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -46,28 +51,22 @@ const AddStudent = () => {
     for (let key in form) {
       if (form[key] !== null) formData.append(key, form[key]);
     }
-
     if (isEditing) {
       dispatch(updateStudent({ id: form.id, studentData: formData }))
         .unwrap()
-        .then(() => {
-          alert("Student updated!");
-          resetForm();
-        })
+        .then(() => { alert("Student updated!"); resetForm(); })
         .catch(() => alert("Update failed"));
     } else {
       dispatch(addStudent(formData))
         .unwrap()
-        .then(() => {
-          alert("Student added!");
-          resetForm();
-        })
+        .then(() => { alert("Student added!"); resetForm(); })
         .catch(() => alert("Add failed"));
     }
   };
 
   const handleEdit = (student) => {
     setIsEditing(true);
+    setProfileFileName("");
     setForm({
       id: student.id,
       firstname: student.firstname || "",
@@ -81,7 +80,7 @@ const AddStudent = () => {
       password: "",
       profile_picture: null,
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setShowFormModal(true);
   };
 
   const handleDelete = (id) => {
@@ -92,294 +91,327 @@ const AddStudent = () => {
 
   const resetForm = () => {
     setForm({
-      id: null,
-      firstname: "",
-      middlename: "",
-      lastname: "",
-      student_class: "",
-      fathername: "",
-      mothename: "",
-      address: "",
-      email: "",
-      password: "",
-      profile_picture: null,
+      id: null, firstname: "", middlename: "", lastname: "",
+      student_class: "", fathername: "", mothename: "",
+      address: "", email: "", password: "", profile_picture: null,
     });
+    setProfileFileName("");
     setIsEditing(false);
+    setShowFormModal(false);
   };
 
   const filteredStudents = students ? students.filter((s) =>
-    `${s.firstname} ${s.middlename} ${s.lastname}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()) ||
+    `${s.firstname} ${s.middlename} ${s.lastname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.student_class?.toLowerCase().includes(searchTerm.toLowerCase())
   ) : [];
 
+  const inputCls = "bg-slate-50 border border-slate-200 text-slate-800 text-sm px-4 py-2.5 rounded-lg outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-50 transition-all placeholder-slate-300 w-full";
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-10">
-      {/* Form Section */}
-      <div className="bg-white shadow-md p-6 rounded">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-orange-600">
-            {isEditing ? "Edit Student" : "Add Student"}
-          </h2>
+    <div className="min-h-screen bg-white px-6 py-10">
+      <div className="max-w-5xl mx-auto">
+
+        {/* ── Page Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 pb-6 border-b-2 border-slate-100">
+          <div>
+            <p className="text-xs font-semibold tracking-widest uppercase text-violet-500 mb-1">School Management</p>
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Students</h1>
+          </div>
           <button
-            onClick={() => setShowForm(!showForm)}
-            className="text-orange-600 hover:underline font-medium"
+            onClick={() => { setIsEditing(false); resetForm(); setShowFormModal(true); }}
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm shadow-violet-200"
           >
-            {showForm ? "Hide Form" : "Show Form"}
+            <span className="text-lg leading-none">+</span> Add Student
           </button>
         </div>
 
-        {error && <p className="text-red-500 mb-3">{error}</p>}
-
-        {showForm && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-4">
+        {/* ── Search + Table Card ── */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* Search Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+            <p className="text-xs font-bold tracking-widest uppercase text-slate-400 self-start sm:self-center">
+              All Students
+              <span className="ml-2 font-normal text-slate-300">({filteredStudents.length})</span>
+            </p>
+            <div className="relative w-full sm:w-72">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
               <input
                 type="text"
-                name="firstname"
-                placeholder="First Name"
-                value={form.firstname || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required
-              />
-              <input
-                type="text"
-                name="middlename"
-                placeholder="Middle Name"
-                value={form.middlename || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-              />
-              <input
-                type="text"
-                name="lastname"
-                placeholder="Last Name"
-                value={form.lastname || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required
+                placeholder="Search name, email or class..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-white border border-slate-200 text-slate-700 text-sm pl-8 pr-4 py-2 rounded-lg outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-50 transition-all w-full placeholder-slate-300"
               />
             </div>
+          </div>
 
-            <input
-              type="text"
-              name="student_class"
-              placeholder="Class"
-              value={form.student_class || ""}
-              onChange={handleChange}
-              className="border p-2 rounded w-full"
-              required
-            />
-
-            <div className="flex gap-4">
-              <input
-                type="text"
-                name="fathername"
-                placeholder="Father Name"
-                value={form.fathername || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required
-              />
-              <input
-                type="text"
-                name="mothename"
-                placeholder="Mother Name"
-                value={form.mothename || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required
-              />
+          {/* Table */}
+          {loading ? (
+            <div className="flex items-center justify-center py-16 gap-2">
+              <div className="w-4 h-4 rounded-full border-2 border-violet-300 border-t-violet-600 animate-spin" />
+              <p className="text-sm text-slate-400">Loading students...</p>
             </div>
-
-            <textarea
-              name="address"
-              placeholder="Address"
-              value={form.address || ""}
-              onChange={handleChange}
-              className="border p-2 rounded w-full"
-              required
-            />
-
-            <div className="flex gap-4">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={form.password || ""}
-                onChange={handleChange}
-                className="border p-2 rounded flex-1"
-                required={!isEditing}
-              />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="text-left text-xs font-semibold tracking-widest uppercase text-slate-400 px-5 py-3">#</th>
+                    <th className="text-left text-xs font-semibold tracking-widest uppercase text-slate-400 px-5 py-3">Student</th>
+                    <th className="text-left text-xs font-semibold tracking-widest uppercase text-slate-400 px-5 py-3 hidden md:table-cell">Class</th>
+                    <th className="text-left text-xs font-semibold tracking-widest uppercase text-slate-400 px-5 py-3 hidden lg:table-cell">Email</th>
+                    <th className="text-right text-xs font-semibold tracking-widest uppercase text-slate-400 px-5 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filteredStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-14">
+                        <p className="text-3xl mb-2">🎓</p>
+                        <p className="text-sm font-medium text-slate-400">No students found</p>
+                        <p className="text-xs text-slate-300 mt-1">Try a different search or add a new student</p>
+                      </td>
+                    </tr>
+                  ) : filteredStudents.map((s, i) => (
+                    <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-5 py-4 text-xs text-slate-400">{i + 1}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          {s.profile_picture ? (
+                            <img src={s.profile_picture} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-slate-200" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-500 text-xs font-bold flex-shrink-0">
+                              {s.firstname?.[0]}{s.lastname?.[0]}
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-sm font-semibold text-slate-800">
+                              {s.firstname} {s.middlename} {s.lastname}
+                            </div>
+                            <div className="text-xs text-slate-400 md:hidden">{s.student_class}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 hidden md:table-cell">
+                        <span className="bg-violet-50 text-violet-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-violet-100">
+                          {s.student_class}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-slate-500 hidden lg:table-cell">{s.email}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => setSelectedStudent(s)}
+                            className="border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+                          >View</button>
+                          <button
+                            onClick={() => handleEdit(s)}
+                            className="border border-slate-200 text-slate-500 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+                          >Edit</button>
+                          <button
+                            onClick={() => handleDelete(s.id)}
+                            className="border border-slate-200 text-slate-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+                          >Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <input
-              type="file"
-              name="profile_picture"
-              onChange={handleChange}
-              className="border p-2 rounded w-full"
-            />
-
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 flex-1"
-              >
-                {isEditing ? "Update Student" : "Add Student"}
-              </button>
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 flex-1"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* Students List Section */}
-      <div className="bg-white shadow-md p-4 rounded overflow-x-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h2 className="text-xl font-bold text-orange-600">Students List</h2>
-          <input
-            type="text"
-            placeholder="Search by name, email or class..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border p-2 rounded w-full md:w-80"
-          />
+          )}
         </div>
-
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <table className="w-full border border-gray-200">
-            <thead className="bg-orange-100">
-              <tr>
-                <th className="border p-2">#</th>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Class</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((s, i) => (
-                <tr key={s.id} className="hover:bg-orange-50">
-                  <td className="border p-2">{i + 1}</td>
-                  <td className="border p-2">
-                    {s.firstname} {s.middlename} {s.lastname}
-                  </td>
-                  <td className="border p-2">{s.student_class}</td>
-                  <td className="border p-2">{s.email}</td>
-                  <td className="border p-2 flex gap-2">
-                    <button
-                      onClick={() => setSelectedStudent(s)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => handleEdit(s)}
-                      className="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(s.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredStudents.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="text-center p-4">
-                    No students found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
       </div>
 
-      {/* Student Details Modal */}
-      {selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 relative overflow-y-auto max-h-[90vh]">
-            <button
-              onClick={() => setSelectedStudent(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
-            >
-              &times;
-            </button>
-            <h3 className="text-2xl font-bold text-orange-600 mb-4 border-b pb-2">Student Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* ══════════════════════════════════════
+          ADD / EDIT STUDENT MODAL
+      ══════════════════════════════════════ */}
+      {showFormModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-7 py-5 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl z-10">
               <div>
-                <p className="text-gray-600 font-semibold">Full Name:</p>
-                <p>{selectedStudent.firstname} {selectedStudent.middlename} {selectedStudent.lastname}</p>
+                <p className="text-xs font-semibold tracking-widest uppercase text-violet-500 mb-0.5">
+                  {isEditing ? "Modify Record" : "New Entry"}
+                </p>
+                <h2 className="text-xl font-extrabold text-slate-900">
+                  {isEditing ? "Edit Student" : "Add Student"}
+                </h2>
               </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Class:</p>
-                <p>{selectedStudent.student_class}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Email:</p>
-                <p>{selectedStudent.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Father's Name:</p>
-                <p>{selectedStudent.fathername}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Mother's Name:</p>
-                <p>{selectedStudent.mothename}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Address:</p>
-                <p>{selectedStudent.address}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Created At:</p>
-                <p>{new Date(selectedStudent.created_at).toLocaleString()}</p>
-              </div>
+              <button
+                onClick={resetForm}
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all text-xl"
+              >×</button>
             </div>
-            {selectedStudent.profile_picture && (
-              <div className="mt-6">
-                <p className="text-gray-600 font-semibold mb-2">Profile Picture:</p>
-                <img
-                  src={selectedStudent.profile_picture}
-                  alt="Profile"
-                  className="w-32 h-32 object-cover rounded shadow"
-                />
+
+            {/* Modal Body */}
+            <div className="px-7 py-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-5">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Name Row */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Full Name</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input type="text" name="firstname" placeholder="First Name" value={form.firstname} onChange={handleChange} className={inputCls} required />
+                    <input type="text" name="middlename" placeholder="Middle Name" value={form.middlename} onChange={handleChange} className={inputCls} />
+                    <input type="text" name="lastname" placeholder="Last Name" value={form.lastname} onChange={handleChange} className={inputCls} required />
+                  </div>
+                </div>
+
+                {/* Class */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Class</p>
+                  <input type="text" name="student_class" placeholder="e.g. Grade 10 - A" value={form.student_class} onChange={handleChange} className={inputCls} required />
+                </div>
+
+                {/* Parent Names */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Parents</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="text" name="fathername" placeholder="Father's Name" value={form.fathername} onChange={handleChange} className={inputCls} required />
+                    <input type="text" name="mothename" placeholder="Mother's Name" value={form.mothename} onChange={handleChange} className={inputCls} required />
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Address</p>
+                  <textarea
+                    name="address"
+                    placeholder="Full address..."
+                    value={form.address}
+                    onChange={handleChange}
+                    rows={2}
+                    className={`${inputCls} resize-none`}
+                    required
+                  />
+                </div>
+
+                {/* Email + Password */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Account</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input type="email" name="email" placeholder="Email address" value={form.email} onChange={handleChange} className={inputCls} required />
+                    <input type="password" name="password" placeholder={isEditing ? "Leave blank to keep" : "Password"} value={form.password} onChange={handleChange} className={inputCls} required={!isEditing} />
+                  </div>
+                </div>
+
+                {/* Profile Picture */}
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-2">Profile Picture</p>
+                  <label className="flex items-center gap-3 bg-slate-50 border border-dashed border-slate-300 hover:border-violet-400 hover:bg-violet-50/30 px-4 py-3 rounded-lg cursor-pointer transition-all group relative">
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 group-hover:border-violet-300 group-hover:text-violet-500 transition-all text-sm shadow-sm flex-shrink-0">↑</span>
+                    <div>
+                      <p className={`text-sm font-medium ${profileFileName ? "text-violet-600" : "text-slate-400"}`}>
+                        {profileFileName || "Upload profile photo"}
+                      </p>
+                      {!profileFileName && <p className="text-xs text-slate-300 mt-0.5">PNG, JPG up to 5MB</p>}
+                    </div>
+                    <input type="file" name="profile_picture" onChange={handleChange} className="absolute inset-0 opacity-0 cursor-pointer w-full" />
+                  </label>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-sm shadow-violet-200"
+                  >
+                    {isEditing ? "Save Changes" : "Add Student"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-6 border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 text-sm font-medium rounded-xl transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════
+          VIEW STUDENT DETAILS MODAL
+      ══════════════════════════════════════ */}
+      {selectedStudent && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-7 py-5 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl z-10">
+              <div>
+                <p className="text-xs font-semibold tracking-widest uppercase text-blue-500 mb-0.5">Student Profile</p>
+                <h2 className="text-xl font-extrabold text-slate-900">Details</h2>
               </div>
-            )}
-            <div className="mt-8 flex justify-end">
               <button
                 onClick={() => setSelectedStudent(null)}
-                className="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition"
-              >
-                Close
-              </button>
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all text-xl"
+              >×</button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-7 py-6">
+              {/* Avatar + Name */}
+              <div className="flex items-center gap-4 mb-7 pb-6 border-b border-slate-100">
+                {selectedStudent.profile_picture ? (
+                  <img src={selectedStudent.profile_picture} alt="Profile" className="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-sm" />
+                ) : (
+                  <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center text-violet-500 text-2xl font-bold border border-violet-100">
+                    {selectedStudent.firstname?.[0]}{selectedStudent.lastname?.[0]}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    {selectedStudent.firstname} {selectedStudent.middlename} {selectedStudent.lastname}
+                  </h3>
+                  <span className="bg-violet-50 text-violet-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-violet-100 mt-1 inline-block">
+                    {selectedStudent.student_class}
+                  </span>
+                </div>
+              </div>
+
+              {/* Detail Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { label: "Email", value: selectedStudent.email },
+                  { label: "Father's Name", value: selectedStudent.fathername },
+                  { label: "Mother's Name", value: selectedStudent.mothename },
+                  { label: "Address", value: selectedStudent.address },
+                  { label: "Registered", value: selectedStudent.created_at ? new Date(selectedStudent.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                    <p className="text-xs font-semibold tracking-wide uppercase text-slate-400 mb-1">{label}</p>
+                    <p className="text-sm text-slate-700 font-medium">{value || "—"}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="mt-7 flex gap-3">
+                <button
+                  onClick={() => { setSelectedStudent(null); handleEdit(selectedStudent); }}
+                  className="flex-1 border border-violet-200 text-violet-600 hover:bg-violet-50 text-sm font-semibold py-2.5 rounded-xl transition-all"
+                >
+                  Edit Student
+                </button>
+                <button
+                  onClick={() => setSelectedStudent(null)}
+                  className="flex-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
