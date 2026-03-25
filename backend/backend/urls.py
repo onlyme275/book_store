@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/', include('books.urls')),
     path('api/', include('review.urls')),
     path('api/', include('message.urls')),
+    path('api/', include('notification.urls')),
 ]
 
 if settings.DEBUG:

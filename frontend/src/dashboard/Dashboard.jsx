@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import NotificationBell from "./NotificationBell";
 
 
 const Dashboard = () => {
@@ -21,9 +22,7 @@ const Dashboard = () => {
                             })}
                         </p>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
-                        🔔
-                    </div>
+                    <NotificationBell />
                 </header>
                 <main className="flex-1 overflow-y-auto p-8">
                     <Outlet />

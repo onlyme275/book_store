@@ -13,31 +13,70 @@ const Customer = () => {
   const soldBooks = books.filter((book) => book.is_sold);
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl mb-4">Purchased Books</h2>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        🛒 Purchased Books
+      </h2>
+
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-center text-gray-500">Loading...</p>
       ) : soldBooks.length === 0 ? (
-        <p>No books have been purchased yet.</p>
+        <p className="text-center text-gray-500">
+          No books have been purchased yet.
+        </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {soldBooks.map((book) => (
-            <div key={book.id} className="border p-4 rounded shadow">
+            <div
+              key={book.id}
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition duration-300"
+            >
               {book.photo && (
                 <img
                   src={book.photo}
                   alt={book.title}
-                  className="h-40 w-full object-cover mb-2 rounded"
+                  className="h-48 w-full object-cover"
                 />
               )}
-              <h3 className="font-bold">{book.title}</h3>
-              <p>Author: {book.author}</p>
-              <p>Price: ${book.price}</p>
-              <p>Seller: {book.seller_email}</p>
-              <p>Buyer: {book.buyer_email}</p>
-              <p>Status: {book.is_sold ? "Sold" : "Available"}</p>
-              <p>Created: {new Date(book.created_at).toLocaleString()}</p>
-              <p>Updated: {new Date(book.updated_at).toLocaleString()}</p>
+
+              <div className="p-5 space-y-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {book.title}
+                  </h3>
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                    Sold
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-500">
+                  Author: <span className="font-medium">{book.author}</span>
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Price: <span className="font-medium">${book.price}</span>
+                </p>
+
+                <div className="text-sm text-gray-600 space-y-1 mt-2">
+                  <p>
+                    <span className="font-medium">Seller:</span>{" "}
+                    {book.seller_email}
+                  </p>
+                  <p>
+                    <span className="font-medium">Buyer:</span>{" "}
+                    {book.buyer_email}
+                  </p>
+                </div>
+
+                <div className="text-xs text-gray-400 mt-3 border-t pt-2">
+                  <p>
+                    Created: {new Date(book.created_at).toLocaleString()}
+                  </p>
+                  <p>
+                    Updated: {new Date(book.updated_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

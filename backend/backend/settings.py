@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'books',
     'review',
     'message',
+    'notification',
 ]
 
 MIDDLEWARE = [
