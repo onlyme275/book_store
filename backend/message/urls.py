@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import MessageListCreateView
+from .views import AIChatView
 
 urlpatterns = [
-    path('messages/', MessageListCreateView.as_view(), name='messages'),
+    path('messages/', AIChatView.as_view(), name='ai_chat'),
 ]

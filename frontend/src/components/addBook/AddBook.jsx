@@ -212,7 +212,7 @@ const AddBook = () => {
                       </div>
                     </td>
                     <td className="px-5 py-4 hidden sm:table-cell">
-                      <span className="text-sm font-semibold text-emerald-600">${book.price}</span>
+                      <span className="text-sm font-semibold text-emerald-600">Rs. {book.price}</span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2 justify-end">
