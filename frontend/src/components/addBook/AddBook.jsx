@@ -131,7 +131,7 @@ const AddBook = () => {
                   <p className={`text-sm font-medium ${fileName ? "text-indigo-600" : "text-slate-400"}`}>
                     {fileName || "Upload cover image"}
                   </p>
-                  {!fileName && <p className="text-xs text-slate-300 mt-0.5">PNG, JPG up to 4MB</p>}
+                  {!fileName && <p className="text-xs text-slate-300 mt-0.5">PNG, JPG up to 5MB</p>}
                 </div>
                 <input
                   type="file"
